@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>일기</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로</a>
+
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="brand">
+          <div class="brand__mark" aria-hidden="true">일</div>
+          <div class="brand__text">
+            <div class="brand__title">일기</div>
+            <div class="brand__subtitle">오늘을 기록하고, 내일을 정리해요</div>
+          </div>
+        </div>
+
+        <div class="weather" aria-label="오늘의 날씨">
+          <div class="weather__main">
+            <div class="weather__title">오늘의 날씨</div>
+            <div id="weatherText" class="weather__text" aria-live="polite">불러오는 중…</div>
+          </div>
+          <button id="weatherRefresh" class="btn btn--ghost weather__refresh" type="button" title="날씨 새로고침" aria-label="날씨 새로고침">
+            <span class="btn__icon" aria-hidden="true">↻</span>
+          </button>
+        </div>
+
+        <div class="topbar__actions">
+          <button id="themeToggle" class="btn btn--ghost" type="button" aria-pressed="false">
+            <span class="btn__icon" aria-hidden="true">◐</span>
+            <span class="btn__label">테마</span>
+          </button>
+          <button id="exportBtn" class="btn btn--ghost" type="button">
+            <span class="btn__icon" aria-hidden="true">⤓</span>
+            <span class="btn__label">내보내기</span>
+          </button>
+          <label class="btn btn--ghost filebtn" for="importInput">
+            <span class="btn__icon" aria-hidden="true">⤒</span>
+            <span class="btn__label">가져오기</span>
+          </label>
+          <input id="importInput" class="sr-only" type="file" accept="application/json" />
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="shell">
+      <section class="panel panel--compose" aria-label="일기 작성">
+        <div class="panel__header">
+          <h2 class="panel__title">새 일기</h2>
+          <div class="panel__meta" id="draftStatus" aria-live="polite"></div>
+        </div>
+
+        <form id="entryForm" class="form">
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">제목</span>
+              <input id="titleInput" class="input" name="title" type="text" maxlength="80" placeholder="예: 화창한 오후" autocomplete="off" />
+            </label>
+
+            <label class="field">
+              <span class="field__label">날짜</span>
+              <input id="dateInput" class="input" name="date" type="date" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="field__label">내용</span>
+            <textarea id="contentInput" class="textarea" name="content" rows="8" placeholder="오늘 있었던 일, 생각, 감정..." maxlength="8000"></textarea>
+            <div class="field__hint">
+              <span id="charCount">0</span>/8000
+            </div>
+          </label>
+
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">기분</span>
+              <select id="moodInput" class="input" name="mood">
+                <option value="🙂">🙂 평온</option>
+                <option value="😄">😄 기쁨</option>
+                <option value="🥲">🥲 울컥</option>
+                <option value="😤">😤 답답</option>
+                <option value="😴">😴 피곤</option>
+                <option value="🤯">🤯 복잡</option>
+                <option value="😡">😡 화남</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">태그</span>
+              <input id="tagsInput" class="input" name="tags" type="text" placeholder="쉼표로 구분 (예: 운동, 커피, 공부)" autocomplete="off" />
+            </label>
+          </div>
+
+          <div class="form__actions">
+            <button id="saveBtn" class="btn btn--primary" type="submit">저장</button>
+            <button id="resetBtn" class="btn btn--ghost" type="button">초기화</button>
+            <button id="deleteBtn" class="btn btn--danger" type="button" hidden>삭제</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel panel--list" aria-label="일기 목록">
+        <div class="panel__header panel__header--stack">
+          <div class="panel__headerRow">
+            <h2 class="panel__title">기록</h2>
+            <div class="count" id="countLabel" aria-live="polite"></div>
+          </div>
+
+          <div class="toolbar">
+            <label class="toolbar__search">
+              <span class="sr-only">검색</span>
+              <input id="searchInput" class="input" type="search" placeholder="검색: 제목/내용/태그" autocomplete="off" />
+            </label>
+
+            <label class="toolbar__select">
+              <span class="sr-only">정렬</span>
+              <select id="sortSelect" class="input">
+                <option value="pinned_desc_date_desc">즐겨찾기 → 최신</option>
+                <option value="date_desc">최신</option>
+                <option value="date_asc">오래된</option>
+                <option value="updated_desc">최근 수정</option>
+              </select>
+            </label>
+
+            <button id="newBtn" class="btn btn--ghost" type="button">
+              <span class="btn__icon" aria-hidden="true">＋</span>
+              <span class="btn__label">새로</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="list" class="list" role="list"></div>
+        <div id="emptyState" class="empty" hidden>
+          <div class="empty__title">아직 기록이 없어요</div>
+          <div class="empty__desc">왼쪽에서 첫 일기를 저장해 보세요.</div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="confirmDialog" class="dialog">
+      <form method="dialog" class="dialog__card">
+        <h3 class="dialog__title" id="confirmTitle">확인</h3>
+        <p class="dialog__desc" id="confirmDesc"></p>
+        <div class="dialog__actions">
+          <button class="btn btn--ghost" value="cancel">취소</button>
+          <button id="confirmOk" class="btn btn--danger" value="ok">확인</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toastHost" class="toastHost" aria-live="polite" aria-relevant="additions"></div>
+
+    <!-- Runtime config injected by server.py (reads .env) -->
+    <script src="/config.js" defer></script>
+    <!-- Supabase JS (CDN, no API key required beyond anon key) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
+
